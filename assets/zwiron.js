@@ -1,4 +1,4 @@
-/* ZWIRON GSAP animations */
+/* ZWIRON — simple, smooth animations */
 (function () {
   'use strict';
   function ready(fn) {
@@ -16,168 +16,171 @@
     }
   }
 
-  function splitWords(el) {
-    if (!el || el.dataset.zwSplit) return;
-    var html = el.innerHTML;
-    var lines = el.querySelectorAll('.zw-line');
-    if (lines.length) {
-      lines.forEach(function (line) {
-        var inner = line.innerHTML;
-        line.innerHTML = '<span>' + inner + '</span>';
+  function reveal(elements, options) {
+    if (!elements || !elements.length) return;
+    options = options || {};
+    var y = options.y == null ? 24 : options.y;
+    var stagger = options.stagger || 0;
+    var duration = options.duration || 0.7;
+    var ease = options.ease || 'power2.out';
+    gsap.set(elements, { y: y, opacity: 0 });
+    var seen = false;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting && !seen) {
+          seen = true;
+          gsap.to(elements, {
+            y: 0, opacity: 1, duration: duration, ease: ease, stagger: stagger,
+            clearProps: 'transform,opacity'
+          });
+          io.disconnect();
+        }
       });
-    }
-    el.dataset.zwSplit = '1';
+    }, { threshold: 0.1, rootMargin: '0px 0px -8% 0px' });
+    Array.prototype.forEach.call(elements, function (el) { io.observe(el); });
   }
 
   function initNav() {
     var nav = document.querySelector('.zw-nav');
     if (!nav) return;
-    gsap.from(nav, { y: -80, opacity: 0, duration: 0.9, ease: 'power3.out', delay: 0.1, clearProps: 'transform,opacity' });
-    var lastY = 0;
-    window.addEventListener('scroll', function () {
-      var y = window.scrollY;
-      if (y > 80 && y > lastY) nav.classList.add('zw-nav--hidden');
-      else nav.classList.remove('zw-nav--hidden');
-      lastY = y;
-    }, { passive: true });
+    gsap.from(nav, { y: -20, opacity: 0, duration: 0.6, ease: 'power2.out', clearProps: 'all' });
   }
 
   function initHero() {
     var hero = document.querySelector('.zw-hero');
     if (!hero) return;
-    var title = hero.querySelector('.zw-hero__title');
-    if (title) splitWords(title);
-    var lines = hero.querySelectorAll('.zw-hero__title .zw-line > span');
-    var tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
-    tl.from(hero.querySelector('.zw-hero__eyebrow'), { y: 30, opacity: 0, duration: 0.7 }, 0.1)
-      .from(lines, { yPercent: 110, duration: 1, stagger: 0.08 }, 0.2)
-      .from(hero.querySelector('.zw-hero__copy'), { y: 30, opacity: 0, duration: 0.7 }, 0.5)
-      .from(hero.querySelectorAll('.zw-hero__actions > *'), { y: 20, opacity: 0, duration: 0.6, stagger: 0.08 }, 0.7)
-      .from(hero.querySelector('.zw-hero__visual'), { y: 60, scale: 0.94, opacity: 0, duration: 1.1 }, 0.3)
-      .from(hero.querySelector('.zw-hero__badge'), { y: 20, opacity: 0, duration: 0.6 }, 0.9);
-
-    var visual = hero.querySelector('.zw-hero__visual');
-    if (visual) {
-      gsap.to(visual, {
-        y: -80,
-        ease: 'none',
-        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 1 }
-      });
-    }
+    var els = hero.querySelectorAll('.zw-hero__eyebrow, .zw-hero__title, .zw-hero__copy, .zw-hero__actions, .zw-hero__visual, .zw-hero__badge');
+    if (!els.length) return;
+    gsap.set(els, { y: 24, opacity: 0 });
+    gsap.to(els, {
+      y: 0, opacity: 1, duration: 0.8, ease: 'power2.out', stagger: 0.08,
+      clearProps: 'transform,opacity'
+    });
   }
 
   function initSectionHeads() {
     document.querySelectorAll('.zw-section__title, .zw-faq__intro h2').forEach(function (el) {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 85%' },
-        y: 60, opacity: 0, duration: 1, ease: 'power3.out'
-      });
+      reveal([el], { y: 24, duration: 0.7 });
     });
     document.querySelectorAll('.zw-section__eyebrow, .zw-section__link').forEach(function (el) {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 90%' },
-        y: 20, opacity: 0, duration: 0.6, ease: 'power2.out'
-      });
+      reveal([el], { y: 14, duration: 0.5 });
     });
   }
 
   function initProducts() {
     document.querySelectorAll('.zw-products').forEach(function (root) {
       var cards = root.querySelectorAll('.zw-product');
-      gsap.from(cards, {
-        scrollTrigger: { trigger: root, start: 'top 75%' },
-        y: 80, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.08
+      reveal(cards, { y: 24, stagger: 0.06, duration: 0.7 });
+    });
+  }
+
+  function initCollectionSearch() {
+    var form = document.querySelector('[data-zw-search-form]');
+    if (!form) return;
+    var input = form.querySelector('[data-zw-search-input]');
+    var grid = document.querySelector('[data-zw-search-grid]');
+    var empty = document.querySelector('[data-zw-search-empty]');
+    var pagination = document.querySelector('[data-zw-pagination]');
+    if (!input || !grid) return;
+    form.addEventListener('submit', function (e) { e.preventDefault(); });
+    var cards = grid.querySelectorAll('.zw-product');
+    function apply() {
+      var q = input.value.trim().toLowerCase();
+      var visible = 0;
+      cards.forEach(function (card) {
+        var name = (card.querySelector('.zw-product__name') || {}).textContent || '';
+        var cat = (card.querySelector('.zw-product__cat') || {}).textContent || '';
+        var match = q === '' || name.toLowerCase().indexOf(q) !== -1 || cat.toLowerCase().indexOf(q) !== -1;
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
       });
+      if (empty) empty.hidden = visible !== 0;
+      if (pagination) pagination.style.display = q === '' ? '' : 'none';
+    }
+    var t;
+    input.addEventListener('input', function () {
+      clearTimeout(t);
+      t = setTimeout(apply, 80);
+    });
+  }
+
+  function initCollectionList() {
+    document.querySelectorAll('.zw-clist-grid').forEach(function (grid) {
+      var cards = grid.querySelectorAll('.zw-clist-card');
+      reveal(cards, { y: 24, stagger: 0.06, duration: 0.7 });
     });
   }
 
   function initSocial() {
+    if (!window.ScrollTrigger) return;
     document.querySelectorAll('.zw-social').forEach(function (root) {
       var track = root.querySelector('.zw-social__track');
       if (!track) return;
-      var st;
+      var trigger;
       function build() {
-        if (st) { st.kill(); }
-        gsap.set(track, { x: 0 });
-        var totalWidth = track.scrollWidth;
-        var viewport = root.offsetWidth;
-        var distance = totalWidth - viewport + 64;
+        if (trigger) { trigger.kill(); trigger = null; }
+        gsap.set(track, { x: 0, clearProps: 'transform' });
+        var distance = track.scrollWidth - root.offsetWidth + 64;
         if (distance < 100) return;
         var tween = gsap.to(track, {
-          x: -distance,
+          x: function () { return -(track.scrollWidth - root.offsetWidth + 64); },
           ease: 'none',
           scrollTrigger: {
             trigger: root,
             start: 'top top',
-            end: '+=' + distance,
+            end: function () { return '+=' + (track.scrollWidth - root.offsetWidth + 64); },
             scrub: 1,
             pin: true,
+            pinSpacing: true,
             anticipatePin: 1,
             invalidateOnRefresh: true
           }
         });
-        st = tween.scrollTrigger;
+        trigger = tween.scrollTrigger;
       }
       build();
-      var resizeTimer;
+      window.addEventListener('load', function () {
+        ScrollTrigger.refresh();
+      });
+      root.querySelectorAll('img').forEach(function (img) {
+        if (!img.complete) {
+          img.addEventListener('load', function () { ScrollTrigger.refresh(); }, { once: true });
+        }
+      });
+      var t;
       window.addEventListener('resize', function () {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(build, 200);
+        clearTimeout(t);
+        t = setTimeout(function () { ScrollTrigger.refresh(); }, 200);
       });
     });
   }
 
-  function refreshOnLoad() {
+  function initLayoutRefresh() {
     if (!window.ScrollTrigger) return;
-    var imgs = document.querySelectorAll('img');
-    var pending = 0;
-    imgs.forEach(function (img) {
-      if (!img.complete) {
-        pending++;
-        img.addEventListener('load', done, { once: true });
-        img.addEventListener('error', done, { once: true });
-      }
-    });
-    function done() {
-      pending--;
-      if (pending <= 0) ScrollTrigger.refresh();
-    }
-    if (pending === 0) ScrollTrigger.refresh();
     window.addEventListener('load', function () { ScrollTrigger.refresh(); });
   }
 
   function initFaq() {
-    document.querySelectorAll('.zw-faq__item').forEach(function (item, i) {
+    var items = document.querySelectorAll('.zw-faq__item');
+    if (items.length) reveal(items, { y: 16, stagger: 0.04, duration: 0.5 });
+    items.forEach(function (item) {
       var btn = item.querySelector('.zw-faq__q');
       var panel = item.querySelector('.zw-faq__a');
       var inner = panel ? panel.firstElementChild : null;
       if (!btn || !panel || !inner) return;
-
-      gsap.from(item, {
-        scrollTrigger: { trigger: item, start: 'top 90%' },
-        y: 30, opacity: 0, duration: 0.6, delay: i * 0.04, ease: 'power2.out'
-      });
-
-      // initial open state
-      if (item.classList.contains('is-open')) {
-        gsap.set(panel, { height: 'auto' });
-      } else {
-        gsap.set(panel, { height: 0 });
-      }
-
+      if (item.classList.contains('is-open')) gsap.set(panel, { height: 'auto' });
+      else gsap.set(panel, { height: 0 });
       btn.addEventListener('click', function () {
         var isOpen = item.classList.toggle('is-open');
         btn.setAttribute('aria-expanded', String(isOpen));
         if (isOpen) {
           gsap.fromTo(panel, { height: 0 }, {
             height: inner.offsetHeight,
-            duration: 0.5, ease: 'power3.out',
+            duration: 0.4, ease: 'power2.out',
             onComplete: function () { gsap.set(panel, { height: 'auto' }); }
           });
         } else {
-          gsap.fromTo(panel, { height: panel.offsetHeight }, {
-            height: 0, duration: 0.4, ease: 'power3.in'
-          });
+          gsap.fromTo(panel, { height: panel.offsetHeight }, { height: 0, duration: 0.3, ease: 'power2.in' });
         }
       });
     });
@@ -186,32 +189,8 @@
   function initFooter() {
     var footer = document.querySelector('.zw-footer');
     if (!footer) return;
-    gsap.from(footer.querySelectorAll('.zw-footer__brand h3, .zw-footer__brand p, .zw-footer__col, .zw-footer__bottom > *'), {
-      scrollTrigger: { trigger: footer, start: 'top 80%' },
-      y: 40, opacity: 0, duration: 0.8, stagger: 0.06, ease: 'power3.out'
-    });
-    var big = footer.querySelector('.zw-footer__big');
-    if (big) {
-      gsap.to(big, {
-        y: -60,
-        ease: 'none',
-        scrollTrigger: { trigger: footer, start: 'top bottom', end: 'bottom top', scrub: 1 }
-      });
-    }
-  }
-
-  function initMagneticButtons() {
-    document.querySelectorAll('[data-zw-magnet]').forEach(function (btn) {
-      btn.addEventListener('mousemove', function (e) {
-        var r = btn.getBoundingClientRect();
-        var x = e.clientX - r.left - r.width / 2;
-        var y = e.clientY - r.top - r.height / 2;
-        gsap.to(btn, { x: x * 0.2, y: y * 0.2, duration: 0.4, ease: 'power3.out' });
-      });
-      btn.addEventListener('mouseleave', function () {
-        gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.4)' });
-      });
-    });
+    var els = footer.querySelectorAll('.zw-footer__brand h3, .zw-footer__brand p, .zw-footer__col, .zw-footer__bottom > *');
+    reveal(els, { y: 24, duration: 0.7, stagger: 0.05 });
   }
 
   var Cart = {
@@ -235,8 +214,7 @@
         .then(function (data) {
           var html = data && data['zwiron-cart-drawer'];
           if (!html) return;
-          var parser = new DOMParser();
-          var doc = parser.parseFromString(html, 'text/html');
+          var doc = new DOMParser().parseFromString(html, 'text/html');
           var fresh = doc.querySelector('#zwiron-cart');
           if (!fresh || !self.drawer) return;
           var wasOpen = self.drawer.classList.contains('is-open');
@@ -299,6 +277,65 @@
     }
   };
 
+  function initProductGallery() {
+    var gallery = document.querySelector('[data-zw-gallery]');
+    if (!gallery) return;
+    var main = gallery.querySelector('[data-zw-gallery-main]');
+    var img = gallery.querySelector('[data-zw-gallery-image]');
+    var thumbs = gallery.querySelectorAll('[data-zw-thumb]');
+    if (!main || !img) return;
+
+    thumbs.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var src = btn.getAttribute('data-src');
+        var zoom = btn.getAttribute('data-zoom');
+        if (!src) return;
+        img.style.opacity = '0';
+        var swap = new Image();
+        swap.onload = function () {
+          img.src = src;
+          img.setAttribute('data-zoom', zoom || src);
+          img.style.opacity = '1';
+        };
+        swap.src = src;
+        thumbs.forEach(function (t) { t.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+      });
+    });
+
+    var zoomImg = new Image();
+    var zoomLoaded = false;
+    function preload() {
+      var z = img.getAttribute('data-zoom');
+      if (!z) return;
+      zoomLoaded = false;
+      zoomImg = new Image();
+      zoomImg.onload = function () { zoomLoaded = true; };
+      zoomImg.src = z;
+    }
+    preload();
+
+    main.addEventListener('mouseenter', function () {
+      preload();
+      main.classList.add('is-zooming');
+    });
+    main.addEventListener('mousemove', function (e) {
+      var rect = main.getBoundingClientRect();
+      var x = ((e.clientX - rect.left) / rect.width) * 100;
+      var y = ((e.clientY - rect.top) / rect.height) * 100;
+      x = Math.max(0, Math.min(100, x));
+      y = Math.max(0, Math.min(100, y));
+      img.style.transformOrigin = x + '% ' + y + '%';
+      if (zoomLoaded && img.src !== zoomImg.src) img.src = zoomImg.src;
+    });
+    main.addEventListener('mouseleave', function () {
+      main.classList.remove('is-zooming');
+      img.style.transformOrigin = '50% 50%';
+    });
+
+    img.style.transition = 'opacity 0.2s var(--zw-ease)';
+  }
+
   function initVariantPicker() {
     document.querySelectorAll('[data-zw-product-form]').forEach(function (form) {
       var jsonEl = form.querySelector('[data-zw-product-json]');
@@ -319,22 +356,15 @@
         var btn = form.querySelector('[type="submit"]');
         if (btn) {
           btn.disabled = !match.available;
-          btn.firstChild && (btn.firstChild.nodeValue = match.available ? 'Add to bag ' : 'Sold out ');
+          if (btn.firstChild) btn.firstChild.nodeValue = match.available ? 'Add to bag ' : 'Sold out ';
         }
         var priceEl = document.querySelector('.zw-pp__price > span');
-        if (priceEl) {
-          priceEl.textContent = formatMoney(match.price);
-        }
+        if (priceEl) priceEl.textContent = '$' + (match.price / 100).toFixed(2);
       }
       form.addEventListener('change', function (e) {
         if (e.target.matches('[data-zw-option-input]')) update();
       });
     });
-  }
-
-  function formatMoney(cents) {
-    var amt = (cents / 100).toFixed(2);
-    return '$' + amt;
   }
 
   function initCart() {
@@ -363,9 +393,7 @@
         var originalHTML;
         if (btn) { btn.disabled = true; originalHTML = btn.innerHTML; btn.textContent = 'Adding…'; }
         Cart.add(new FormData(form))
-          .catch(function (err) {
-            alert(err.message);
-          })
+          .catch(function (err) { alert(err.message); })
           .finally(function () {
             if (btn) { btn.disabled = false; if (originalHTML !== undefined) btn.innerHTML = originalHTML; }
           });
@@ -378,13 +406,8 @@
     if (!main) return;
     var template = main.getAttribute('data-template');
     if (template === 'index') return;
-    var targets = main.querySelectorAll('h1, h2, .card, [class*="product-card"], [class*="collection-card"], .shopify-section > .section');
-    targets.forEach(function (el) {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 88%' },
-        y: 40, opacity: 0, duration: 0.8, ease: 'power3.out'
-      });
-    });
+    var targets = main.querySelectorAll('h1, h2, .card, [class*="product-card"], [class*="collection-card"]');
+    targets.forEach(function (el) { reveal([el], { y: 24, duration: 0.6 }); });
   }
 
   ready(function () {
@@ -393,14 +416,16 @@
       initHero();
       initSectionHeads();
       initProducts();
+      initCollectionList();
+      initCollectionSearch();
       initSocial();
       initFaq();
       initFooter();
-      initMagneticButtons();
+      initProductGallery();
       initVariantPicker();
       initCart();
       initNativeReveal();
-      refreshOnLoad();
+      initLayoutRefresh();
     });
   });
 })();

@@ -13,20 +13,38 @@
     </nav>
 
     <div class="zw-pp">
-      <div class="zw-pp__gallery">
-        {%- for media in product.media limit: 4 -%}
-          <figure class="zw-pp__media">
-            {%- if media.media_type == 'image' -%}
-              {{ media | image_url: width: 1200 | image_tag: loading: 'lazy', alt: product.title, widths: '480,800,1200,1600' }}
-            {%- else -%}
-              {{ media | media_tag: loading: 'lazy' }}
-            {%- endif -%}
-          </figure>
-        {%- else -%}
-          <figure class="zw-pp__media">
+      <div class="zw-pp__gallery" data-zw-gallery>
+        {%- assign first_media = product.media.first -%}
+        <figure class="zw-pp__main" data-zw-gallery-main>
+          {%- if first_media -%}
+            <img
+              data-zw-gallery-image
+              src="{{ first_media | image_url: width: 1400 }}"
+              data-zoom="{{ first_media | image_url: width: 2400 }}"
+              alt="{{ product.title }}"
+            >
+          {%- else -%}
             {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
-          </figure>
-        {%- endfor -%}
+          {%- endif -%}
+          <span class="zw-pp__hint" aria-hidden="true">Hover to zoom</span>
+        </figure>
+
+        {%- if product.media.size > 1 -%}
+          <div class="zw-pp__thumbs" role="tablist" aria-label="Product images">
+            {%- for media in product.media limit: 12 -%}
+              <button
+                type="button"
+                class="zw-pp__thumb{% if forloop.first %} is-active{% endif %}"
+                data-zw-thumb
+                data-src="{{ media | image_url: width: 1400 }}"
+                data-zoom="{{ media | image_url: width: 2400 }}"
+                aria-label="View image {{ forloop.index }}"
+              >
+                <img src="{{ media | image_url: width: 240 }}" alt="" loading="lazy">
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
       </div>
 
       <aside class="zw-pp__info">

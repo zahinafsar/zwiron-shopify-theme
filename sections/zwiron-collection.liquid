@@ -1,37 +1,91 @@
-<section class="zw zw-section zw-collection">
+{%- liquid
+  assign cols = section.settings.columns | default: 4
+  assign per_page = section.settings.per_page | default: 16
+  assign current_sort = collection.sort_by | default: collection.default_sort_by
+-%}
+
+<section class="zw zw-collection-page">
   <div class="zw-container">
-    <header class="zw-collection__head">
-      <div class="zw-section__eyebrow">/ Collection</div>
-      <h1 class="zw-section__title">{{ collection.title }}</h1>
-      {%- if collection.description != blank -%}
-        <p class="zw-collection__desc">{{ collection.description }}</p>
-      {%- endif -%}
-      <div class="zw-collection__meta">
-        <span>{{ collection.products_count }} {% if collection.products_count == 1 %}piece{% else %}pieces{% endif %}</span>
+    <header class="zw-coll-head">
+      <div class="zw-coll-head__left">
+        <span class="zw-coll-head__kicker">{{ collection.products_count }} {% if collection.products_count == 1 %}piece{% else %}pieces{% endif %}</span>
+        <h1 class="zw-coll-head__title">{{ collection.title }}</h1>
+      </div>
+      <div class="zw-coll-head__right">
+        {%- if collection.description != blank -%}
+          <p class="zw-coll-head__desc">{{ collection.description | strip_html | truncatewords: 32 }}</p>
+        {%- else -%}
+          <p class="zw-coll-head__desc">A curated edit of {{ collection.products_count }} pieces from the studio. Filter by category, sort by what matters, find what fits.</p>
+        {%- endif -%}
       </div>
     </header>
 
-    {%- paginate collection.products by 24 -%}
+    <div class="zw-coll-controls" data-zw-coll-controls>
+      <form method="get" class="zw-coll-search" role="search" data-zw-search-form>
+        <svg class="zw-coll-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input
+          type="search"
+          class="zw-coll-search__input"
+          placeholder="Search {{ collection.title | downcase }}"
+          data-zw-search-input
+          aria-label="Search {{ collection.title }}"
+        >
+      </form>
+
+      <form method="get" class="zw-coll-sort">
+        <label for="zw-sort">Sort</label>
+        <select id="zw-sort" name="sort_by" onchange="this.form.submit()">
+          <option value="manual"{% if current_sort == 'manual' %} selected{% endif %}>Featured</option>
+          <option value="best-selling"{% if current_sort == 'best-selling' %} selected{% endif %}>Best selling</option>
+          <option value="created-descending"{% if current_sort == 'created-descending' %} selected{% endif %}>Newest</option>
+          <option value="price-ascending"{% if current_sort == 'price-ascending' %} selected{% endif %}>Price · low</option>
+          <option value="price-descending"{% if current_sort == 'price-descending' %} selected{% endif %}>Price · high</option>
+          <option value="title-ascending"{% if current_sort == 'title-ascending' %} selected{% endif %}>A → Z</option>
+        </select>
+        <span class="zw-coll-sort__caret" aria-hidden="true">↓</span>
+      </form>
+    </div>
+
+    {%- if collection.all_tags.size > 0 -%}
+      <div class="zw-coll-tags">
+        <a href="{{ collection.url }}" class="zw-coll-chip{% unless current_tags %} is-active{% endunless %}">All</a>
+        {%- for tag in collection.all_tags limit: 14 -%}
+          <a href="{{ collection.url }}/{{ tag | handle }}" class="zw-coll-chip{% if current_tags contains tag %} is-active{% endif %}">{{ tag }}</a>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- paginate collection.products by per_page -%}
       {%- if collection.products.size > 0 -%}
-        <div class="zw-products__grid">
-          {%- for product in collection.products -%}
-            {% render 'zwiron-product-card', product: product %}
-          {%- endfor -%}
+        <div class="zw-products" data-zw-search-grid>
+          <div class="zw-products__grid" style="--zw-cols: {{ cols }};">
+            {%- for product in collection.products -%}
+              {% render 'zwiron-product-card', product: product %}
+            {%- endfor -%}
+          </div>
+          <p class="zw-coll-noresults" data-zw-search-empty hidden>No pieces match that search.</p>
         </div>
 
         {%- if paginate.pages > 1 -%}
-          <nav class="zw-pagination" aria-label="Pagination">
+          <nav class="zw-pagination" aria-label="Pagination" data-zw-pagination>
             {%- if paginate.previous -%}
               <a href="{{ paginate.previous.url }}" class="zw-pagination__link">← Previous</a>
+            {%- else -%}
+              <span class="zw-pagination__link is-disabled">← Previous</span>
             {%- endif -%}
             <span class="zw-pagination__info">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
             {%- if paginate.next -%}
               <a href="{{ paginate.next.url }}" class="zw-pagination__link">Next →</a>
+            {%- else -%}
+              <span class="zw-pagination__link is-disabled">Next →</span>
             {%- endif -%}
           </nav>
         {%- endif -%}
       {%- else -%}
-        <p class="zw-collection__empty">No products available right now. Check back soon — we drop in waves.</p>
+        <p class="zw-coll-empty">No products in this collection yet.</p>
       {%- endif -%}
     {%- endpaginate -%}
   </div>
@@ -40,7 +94,10 @@
 {% schema %}
 {
   "name": "Zwiron Collection",
-  "settings": [],
+  "settings": [
+    { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 5, "step": 1, "default": 4 },
+    { "type": "range", "id": "per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 16 }
+  ],
   "presets": [{ "name": "Zwiron Collection" }]
 }
 {% endschema %}

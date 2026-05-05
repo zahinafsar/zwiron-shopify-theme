@@ -1,9 +1,9 @@
 {% doc %}
-  Renders a Zwiron-styled product card. Used on home, collection grid, and recommendations.
+  Renders a Zwiron-styled product card.
   @param {object} [product] - Shopify product object
-  @param {string} [fallback_image] - Optional fallback image URL when product has no image
+  @param {string} [fallback_image] - Optional fallback image URL when no product image
   @param {string} [fallback_name] - Optional fallback display name
-  @param {number} [fallback_price] - Optional fallback price (cents) for placeholder cards
+  @param {number} [fallback_price] - Optional fallback price (whole number) for placeholders
   @example
   {% render 'zwiron-product-card', product: product %}
 {% enddoc %}
@@ -21,14 +21,17 @@
   elsif product.tags contains 'limited'
     assign tag_label = 'Limited'
   endif
+  assign card_url = product.url | default: routes.collections_url
+  assign card_name = product.title | default: fallback_name
+  assign card_cat = product.type | default: product.vendor | default: 'Zwiron'
 -%}
 
 <article class="zw-product">
-  <a href="{{ product.url | default: routes.collections_url }}" class="zw-product__media" aria-label="{{ product.title | default: fallback_name }}">
+  <a href="{{ card_url }}" class="zw-product__media" aria-label="{{ card_name }}">
     {%- if product.featured_image -%}
-      {{ product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', alt: product.title, widths: '320,480,640,800,1080' }}
+      {{ product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', alt: card_name, widths: '320,480,640,800' }}
     {%- elsif fallback_image -%}
-      <img src="{{ fallback_image }}" alt="{{ fallback_name | default: product.title }}" loading="lazy">
+      <img src="{{ fallback_image }}" alt="{{ card_name }}" loading="lazy">
     {%- else -%}
       {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
     {%- endif -%}
@@ -37,20 +40,18 @@
     {%- endif -%}
   </a>
   <div class="zw-product__body">
-    <span class="zw-product__cat">{{ product.type | default: 'Edition 026' }}</span>
-    <a class="zw-product__name" href="{{ product.url | default: routes.collections_url }}">{{ product.title | default: fallback_name }}</a>
+    <span class="zw-product__cat">{{ card_cat }}</span>
+    <a class="zw-product__name" href="{{ card_url }}">{{ card_name }}</a>
     <div class="zw-product__price">
       <span>
         {%- if product -%}
           {{ product.price | money }}
-          {%- if on_sale -%}
-            <small class="zw-product__compare">{{ product.compare_at_price | money }}</small>
-          {%- endif -%}
+          {%- if on_sale -%}<small class="zw-product__compare">{{ product.compare_at_price | money }}</small>{%- endif -%}
         {%- else -%}
           ${{ fallback_price | default: 195 }}
         {%- endif -%}
       </span>
-      <a class="zw-product__cta" href="{{ product.url | default: routes.collections_url }}" aria-label="View {{ product.title | default: fallback_name }}">→</a>
+      <a class="zw-product__cta" href="{{ card_url }}" aria-label="View {{ card_name }}">→</a>
     </div>
   </div>
 </article>

@@ -1,0 +1,86 @@
+{%- liquid
+  assign cols = section.settings.columns | default: 3
+  assign list = collections
+  if section.settings.menu != blank and linklists[section.settings.menu].links.size > 0
+    assign list = linklists[section.settings.menu].links | map: 'object'
+  endif
+-%}
+
+<section class="zw zw-clist-page">
+  <div class="zw-container">
+    <header class="zw-clist-hero">
+      <h1 class="zw-clist-hero__title">{{ section.settings.title | default: 'Collections' }}</h1>
+      {%- if section.settings.description != blank -%}
+        <p class="zw-clist-hero__desc">{{ section.settings.description }}</p>
+      {%- endif -%}
+    </header>
+
+    <div class="zw-clist-grid" style="--zw-cols: {{ cols }};">
+      {%- for collection in list -%}
+        {%- liquid
+          assign cover = collection.image | default: collection.products.first.featured_image
+          assign sample_products = collection.products | slice: 0, 3
+          assign desc = collection.description | strip_html | truncatewords: 22
+        -%}
+        <article class="zw-clist-card">
+          <a class="zw-clist-card__media" href="{{ collection.url }}" aria-label="{{ collection.title }}">
+            {%- if cover -%}
+              {{ cover | image_url: width: 1200 | image_tag: loading: 'lazy', alt: collection.title, widths: '480,720,1000,1200' }}
+            {%- else -%}
+              <div class="zw-clist-card__placeholder"></div>
+            {%- endif -%}
+            <span class="zw-clist-card__count">{{ collection.products_count }} {% if collection.products_count == 1 %}piece{% else %}pieces{% endif %}</span>
+          </a>
+          <div class="zw-clist-card__body">
+            <div class="zw-clist-card__head">
+              <h2 class="zw-clist-card__title"><a href="{{ collection.url }}">{{ collection.title }}</a></h2>
+              <a class="zw-clist-card__link" href="{{ collection.url }}" aria-label="View {{ collection.title }}">→</a>
+            </div>
+            {%- if desc != blank -%}
+              <p class="zw-clist-card__desc">{{ desc }}</p>
+            {%- else -%}
+              <p class="zw-clist-card__desc">A curated selection of {{ collection.products_count }} pieces — designed, sampled and shipped from our Lisbon studio.</p>
+            {%- endif -%}
+
+            {%- if sample_products.size > 0 -%}
+              <ul class="zw-clist-card__samples">
+                {%- for sp in sample_products -%}
+                  <li>
+                    {%- if sp.featured_image -%}
+                      {{ sp.featured_image | image_url: width: 100 | image_tag: loading: 'lazy', alt: sp.title }}
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+                {%- if collection.products_count > 3 -%}
+                  <li class="zw-clist-card__more">+{{ collection.products_count | minus: 3 }}</li>
+                {%- endif -%}
+              </ul>
+            {%- endif -%}
+
+            <div class="zw-clist-card__foot">
+              <a href="{{ collection.url }}" class="zw-clist-card__cta">
+                Explore collection
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </div>
+        </article>
+      {%- else -%}
+        <p class="zw-coll-empty">No collections published yet.</p>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Zwiron Collections",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Title", "default": "Collections" },
+    { "type": "textarea", "id": "description", "label": "Intro" },
+    { "type": "link_list", "id": "menu", "label": "Menu (optional, restricts list)" },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 1, "max": 3, "step": 1, "default": 3 }
+  ],
+  "presets": [{ "name": "Zwiron Collections" }]
+}
+{% endschema %}

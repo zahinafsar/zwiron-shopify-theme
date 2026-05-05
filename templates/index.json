@@ -16,7 +16,8 @@
       "type": "zwiron-products",
       "settings": {
         "collection": "all",
-        "max_products": 8,
+        "max_products": 5,
+        "columns": 5,
         "eyebrow": "/ 02 — In stock now",
         "title_1": "Featured",
         "title_2": "pieces.",
