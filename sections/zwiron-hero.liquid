@@ -1,0 +1,64 @@
+{%- liquid
+  assign img = section.settings.image
+  assign img_url = 'https://images.pexels.com/photos/22032444/pexels-photo-22032444.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900'
+-%}
+
+<section class="zw zw-hero" id="zwiron-hero">
+  <div class="zw-hero__grid"></div>
+  <div class="zw-hero__inner">
+    <div class="zw-hero__text">
+      <div class="zw-hero__eyebrow">{{ section.settings.eyebrow | default: 'Spring / Summer Drop 026' }}</div>
+      <h1 class="zw-hero__title">
+        <span class="zw-line">{{ section.settings.line_1 | default: 'Designed' }}</span>
+        <span class="zw-line"><em>{{ section.settings.line_2 | default: 'beyond' }}</em></span>
+        <span class="zw-line">{{ section.settings.line_3 | default: 'the ordinary.' }}</span>
+      </h1>
+      <p class="zw-hero__copy">{{ section.settings.copy | default: 'Zwiron is a contemporary label exploring shape, texture and quiet rebellion. Limited drops, unlimited intent.' }}</p>
+      <div class="zw-hero__actions">
+        <a href="{{ section.settings.primary_link | default: routes.collections_url }}" class="zw-btn zw-btn--primary" data-zw-magnet>
+          {{ section.settings.primary_label | default: 'Shop the Drop' }}
+          <span class="zw-btn__arrow">→</span>
+        </a>
+        <a href="{{ section.settings.secondary_link | default: '#zwiron-social' }}" class="zw-btn zw-btn--ghost">
+          {{ section.settings.secondary_label | default: 'Lookbook' }}
+        </a>
+      </div>
+    </div>
+    <div class="zw-hero__visual">
+      {%- if img != blank -%}
+        {{ img | image_url: width: 1200 | image_tag: loading: 'eager', alt: img.alt | default: 'Zwiron hero' }}
+      {%- else -%}
+        <img src="{{ img_url }}" alt="Zwiron hero" loading="eager">
+      {%- endif -%}
+      <div class="zw-hero__badge">
+        <span>Edition 026</span>
+        <strong>23 Pieces</strong>
+      </div>
+    </div>
+  </div>
+  <div class="zw-hero__marquee" aria-hidden="true">
+    <div class="zw-hero__marquee-track">
+      <span>Sculpted form <em>·</em> Engineered fabric <em>·</em> Unisex silhouettes <em>·</em> Made in Lisbon <em>·</em> Sculpted form <em>·</em> Engineered fabric <em>·</em> Unisex silhouettes <em>·</em> Made in Lisbon <em>·</em> </span>
+      <span aria-hidden="true">Sculpted form <em>·</em> Engineered fabric <em>·</em> Unisex silhouettes <em>·</em> Made in Lisbon <em>·</em> Sculpted form <em>·</em> Engineered fabric <em>·</em> Unisex silhouettes <em>·</em> Made in Lisbon <em>·</em> </span>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Zwiron Hero",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Spring / Summer Drop 026" },
+    { "type": "text", "id": "line_1", "label": "Line 1", "default": "Designed" },
+    { "type": "text", "id": "line_2", "label": "Line 2 (italic)", "default": "beyond" },
+    { "type": "text", "id": "line_3", "label": "Line 3", "default": "the ordinary." },
+    { "type": "textarea", "id": "copy", "label": "Copy" },
+    { "type": "image_picker", "id": "image", "label": "Hero image" },
+    { "type": "url", "id": "primary_link", "label": "Primary CTA link" },
+    { "type": "text", "id": "primary_label", "label": "Primary CTA label", "default": "Shop the Drop" },
+    { "type": "url", "id": "secondary_link", "label": "Secondary link" },
+    { "type": "text", "id": "secondary_label", "label": "Secondary label", "default": "Lookbook" }
+  ],
+  "presets": [{ "name": "Zwiron Hero" }]
+}
+{% endschema %}

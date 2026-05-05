@@ -1,0 +1,46 @@
+<section class="zw zw-section zw-collection">
+  <div class="zw-container">
+    <header class="zw-collection__head">
+      <div class="zw-section__eyebrow">/ Collection</div>
+      <h1 class="zw-section__title">{{ collection.title }}</h1>
+      {%- if collection.description != blank -%}
+        <p class="zw-collection__desc">{{ collection.description }}</p>
+      {%- endif -%}
+      <div class="zw-collection__meta">
+        <span>{{ collection.products_count }} {% if collection.products_count == 1 %}piece{% else %}pieces{% endif %}</span>
+      </div>
+    </header>
+
+    {%- paginate collection.products by 24 -%}
+      {%- if collection.products.size > 0 -%}
+        <div class="zw-products__grid">
+          {%- for product in collection.products -%}
+            {% render 'zwiron-product-card', product: product %}
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="zw-pagination" aria-label="Pagination">
+            {%- if paginate.previous -%}
+              <a href="{{ paginate.previous.url }}" class="zw-pagination__link">← Previous</a>
+            {%- endif -%}
+            <span class="zw-pagination__info">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+            {%- if paginate.next -%}
+              <a href="{{ paginate.next.url }}" class="zw-pagination__link">Next →</a>
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+      {%- else -%}
+        <p class="zw-collection__empty">No products available right now. Check back soon — we drop in waves.</p>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Zwiron Collection",
+  "settings": [],
+  "presets": [{ "name": "Zwiron Collection" }]
+}
+{% endschema %}

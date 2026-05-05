@@ -1,0 +1,80 @@
+<section class="zw zw-section zw-section--alt zw-faq" id="zwiron-faq">
+  <div class="zw-container zw-faq__wrap">
+    <div class="zw-faq__intro">
+      <div class="zw-section__eyebrow">{{ section.settings.eyebrow | default: '/ 04 — Asked & answered' }}</div>
+      <h2>{{ section.settings.title | default: 'Things people ask.' }}</h2>
+      <p>{{ section.settings.subtitle | default: 'Quick answers on shipping, care, returns and how our drops are released. Anything missing? Reach the studio directly.' }}</p>
+      <a href="{{ section.settings.contact_url | default: '/pages/contact' }}" class="zw-btn zw-btn--ghost" style="margin-top: 28px;">Contact studio <span class="zw-btn__arrow">→</span></a>
+    </div>
+
+    <ul class="zw-faq__list">
+      <li class="zw-faq__item is-open">
+        <button class="zw-faq__q" type="button" aria-expanded="true">
+          <span>{{ section.settings.q0 | default: 'How do drops work?' }}</span>
+          <span class="zw-faq__icon" aria-hidden="true"></span>
+        </button>
+        <div class="zw-faq__a"><div><p>{{ section.settings.a0 | default: 'Each Zwiron edition is released in limited runs. When stock is gone, it is gone — we rarely restock.' }}</p></div></div>
+      </li>
+      <li class="zw-faq__item">
+        <button class="zw-faq__q" type="button" aria-expanded="false">
+          <span>{{ section.settings.q1 | default: 'What is your shipping policy?' }}</span>
+          <span class="zw-faq__icon" aria-hidden="true"></span>
+        </button>
+        <div class="zw-faq__a"><div><p>{{ section.settings.a1 | default: 'We ship worldwide via DHL Express. Orders ship within 48 hours, with tracked delivery in 2–7 days.' }}</p></div></div>
+      </li>
+      <li class="zw-faq__item">
+        <button class="zw-faq__q" type="button" aria-expanded="false">
+          <span>{{ section.settings.q2 | default: 'Are pieces unisex?' }}</span>
+          <span class="zw-faq__icon" aria-hidden="true"></span>
+        </button>
+        <div class="zw-faq__a"><div><p>{{ section.settings.a2 | default: 'Yes. Every Zwiron piece is designed and patterned for all bodies. Refer to size charts on each product.' }}</p></div></div>
+      </li>
+      <li class="zw-faq__item">
+        <button class="zw-faq__q" type="button" aria-expanded="false">
+          <span>{{ section.settings.q3 | default: 'Where are you based?' }}</span>
+          <span class="zw-faq__icon" aria-hidden="true"></span>
+        </button>
+        <div class="zw-faq__a"><div><p>{{ section.settings.a3 | default: 'Studio in Lisbon, production split between Portugal and northern Italy.' }}</p></div></div>
+      </li>
+      <li class="zw-faq__item">
+        <button class="zw-faq__q" type="button" aria-expanded="false">
+          <span>{{ section.settings.q4 | default: 'How do I care for materials?' }}</span>
+          <span class="zw-faq__icon" aria-hidden="true"></span>
+        </button>
+        <div class="zw-faq__a"><div><p>{{ section.settings.a4 | default: 'Most pieces are made from technical or natural fibers. Care guides ship with every order.' }}</p></div></div>
+      </li>
+      <li class="zw-faq__item">
+        <button class="zw-faq__q" type="button" aria-expanded="false">
+          <span>{{ section.settings.q5 | default: 'What about returns?' }}</span>
+          <span class="zw-faq__icon" aria-hidden="true"></span>
+        </button>
+        <div class="zw-faq__a"><div><p>{{ section.settings.a5 | default: 'Free returns within 30 days on full-price items. Sale items are final.' }}</p></div></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Zwiron FAQ",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "title", "label": "Title" },
+    { "type": "textarea", "id": "subtitle", "label": "Subtitle" },
+    { "type": "url", "id": "contact_url", "label": "Contact link" },
+    { "type": "text", "id": "q0", "label": "Q1" },
+    { "type": "textarea", "id": "a0", "label": "A1" },
+    { "type": "text", "id": "q1", "label": "Q2" },
+    { "type": "textarea", "id": "a1", "label": "A2" },
+    { "type": "text", "id": "q2", "label": "Q3" },
+    { "type": "textarea", "id": "a2", "label": "A3" },
+    { "type": "text", "id": "q3", "label": "Q4" },
+    { "type": "textarea", "id": "a3", "label": "A4" },
+    { "type": "text", "id": "q4", "label": "Q5" },
+    { "type": "textarea", "id": "a4", "label": "A5" },
+    { "type": "text", "id": "q5", "label": "Q6" },
+    { "type": "textarea", "id": "a5", "label": "A6" }
+  ],
+  "presets": [{ "name": "Zwiron FAQ" }]
+}
+{% endschema %}

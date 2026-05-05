@@ -1,0 +1,41 @@
+{%- liquid
+  assign imgs = 'https://images.pexels.com/photos/18913151/pexels-photo-18913151.jpeg?auto=compress&cs=tinysrgb&h=900|https://images.pexels.com/photos/34765068/pexels-photo-34765068.jpeg?auto=compress&cs=tinysrgb&h=900|https://images.pexels.com/photos/4355915/pexels-photo-4355915.jpeg?auto=compress&cs=tinysrgb&h=900|https://images.pexels.com/photos/5090714/pexels-photo-5090714.jpeg?auto=compress&cs=tinysrgb&h=900|https://images.pexels.com/photos/6962028/pexels-photo-6962028.jpeg?auto=compress&cs=tinysrgb&h=900|https://images.pexels.com/photos/31261862/pexels-photo-31261862.jpeg?auto=compress&cs=tinysrgb&h=900|https://images.pexels.com/photos/2825573/pexels-photo-2825573.jpeg?auto=compress&cs=tinysrgb&h=900|https://images.pexels.com/photos/2820585/pexels-photo-2820585.jpeg?auto=compress&cs=tinysrgb&h=900' | split: '|'
+  assign captions = 'New campaign — chapter 7|Behind the seams|Field test, Lisbon|Studio fitting|Onyx Tee restock|Tactile materials|Volta x Pulse|Backstage drop' | split: '|'
+  assign handles = '@zwiron|@zwiron.studio|@zwiron|@zwiron|@zwiron.studio|@zwiron|@zwiron|@zwiron.studio' | split: '|'
+-%}
+
+<section class="zw zw-social" id="zwiron-social">
+  <header class="zw-section__head">
+    <div>
+      <div class="zw-section__eyebrow">{{ section.settings.eyebrow | default: '/ 03 — On the feed' }}</div>
+      <h2 class="zw-section__title">{{ section.settings.title_1 | default: 'Live from' }} <em>{{ section.settings.title_2 | default: '@zwiron.' }}</em></h2>
+    </div>
+    <a href="{{ section.settings.link_url | default: 'https://instagram.com' }}" class="zw-section__link">{{ section.settings.link_label | default: 'Follow on Instagram →' }}</a>
+  </header>
+  <div class="zw-social__track">
+    {%- for i in (0..7) -%}
+      <article class="zw-social-card">
+        <img src="{{ imgs[i] }}" alt="{{ captions[i] }}" loading="lazy">
+        <span class="zw-social-card__heart">♥</span>
+        <div class="zw-social-card__overlay">
+          <span class="zw-social-card__handle">{{ handles[i] }}</span>
+          <span class="zw-social-card__caption">{{ captions[i] }}</span>
+        </div>
+      </article>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Zwiron Social",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "title_1", "label": "Title 1" },
+    { "type": "text", "id": "title_2", "label": "Title 2 (italic)" },
+    { "type": "url", "id": "link_url", "label": "Instagram link" },
+    { "type": "text", "id": "link_label", "label": "Link label" }
+  ],
+  "presets": [{ "name": "Zwiron Social" }]
+}
+{% endschema %}

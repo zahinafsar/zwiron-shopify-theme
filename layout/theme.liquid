@@ -32,6 +32,15 @@
     {%- render 'theme-styles-variables' -%}
     {%- render 'color-schemes' -%}
 
+    {%- comment -%} Zwiron brand layer {%- endcomment -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    {{ 'zwiron.css' | asset_url | stylesheet_tag }}
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="{{ 'zwiron.js' | asset_url }}" defer></script>
+
     {% if request.design_mode %}
       {%- render 'theme-editor' -%}
     {% endif %}
@@ -42,7 +51,8 @@
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
     {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
-    <div id="header-group">
+    {% section 'zwiron-nav' %}
+    <div id="header-group" style="display:none;" aria-hidden="true">
       {% sections 'header-group' %}
     </div>
 
@@ -125,9 +135,11 @@
       {{ content_for_layout }}
     </main>
 
-    <footer>
+    {% section 'zwiron-cart-drawer' %}
+    {% section 'zwiron-footer' %}
+    <div style="display:none;" aria-hidden="true">
       {% sections 'footer-group' %}
-    </footer>
+    </div>
 
     {% render 'search-modal' %}
 

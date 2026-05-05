@@ -1,0 +1,115 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+-%}
+
+<section class="zw zw-section zw-product-page">
+  <div class="zw-container">
+    <nav class="zw-breadcrumbs" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a>
+      <span>/</span>
+      <a href="{{ routes.collections_url }}">Shop</a>
+      <span>/</span>
+      <span>{{ product.title }}</span>
+    </nav>
+
+    <div class="zw-pp">
+      <div class="zw-pp__gallery">
+        {%- for media in product.media limit: 4 -%}
+          <figure class="zw-pp__media">
+            {%- if media.media_type == 'image' -%}
+              {{ media | image_url: width: 1200 | image_tag: loading: 'lazy', alt: product.title, widths: '480,800,1200,1600' }}
+            {%- else -%}
+              {{ media | media_tag: loading: 'lazy' }}
+            {%- endif -%}
+          </figure>
+        {%- else -%}
+          <figure class="zw-pp__media">
+            {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          </figure>
+        {%- endfor -%}
+      </div>
+
+      <aside class="zw-pp__info">
+        <div class="zw-pp__sticky">
+          <span class="zw-pp__cat">{{ product.type | default: 'Edition 026' }}</span>
+          <h1 class="zw-pp__title">{{ product.title }}</h1>
+          <div class="zw-pp__price">
+            <span>{{ current_variant.price | money }}</span>
+            {%- if current_variant.compare_at_price > current_variant.price -%}
+              <small class="zw-product__compare">{{ current_variant.compare_at_price | money }}</small>
+            {%- endif -%}
+          </div>
+
+          {%- if product.description != blank -%}
+            <div class="zw-pp__desc rte">{{ product.description }}</div>
+          {%- endif -%}
+
+          <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="zw-pp__form" data-zw-product-form>
+            {%- if product.has_only_default_variant == false -%}
+              {%- for option in product.options_with_values -%}
+                <fieldset class="zw-pp__option" data-zw-option-index="{{ forloop.index0 }}">
+                  <legend>{{ option.name }}</legend>
+                  <div class="zw-pp__values">
+                    {%- for value in option.values -%}
+                      <label class="zw-pp__value">
+                        <input type="radio" name="options[{{ option.name | escape }}]" value="{{ value | escape }}"{% if option.selected_value == value %} checked{% endif %} data-zw-option-input>
+                        <span>{{ value }}</span>
+                      </label>
+                    {%- endfor -%}
+                  </div>
+                </fieldset>
+              {%- endfor -%}
+            {%- endif -%}
+
+            <input type="hidden" name="id" value="{{ current_variant.id }}" data-zw-variant-id>
+            <script type="application/json" data-zw-product-json>{{ product.variants | json }}</script>
+
+            <div class="zw-pp__qty">
+              <label for="zw-qty">Qty</label>
+              <input id="zw-qty" type="number" name="quantity" value="1" min="1" inputmode="numeric">
+            </div>
+
+            <button type="submit" class="zw-btn zw-btn--primary zw-pp__add" {% unless current_variant.available %}disabled{% endunless %} data-zw-magnet>
+              {% if current_variant.available %}Add to bag{% else %}Sold out{% endif %}
+              <span class="zw-btn__arrow">→</span>
+            </button>
+          </form>
+
+          <ul class="zw-pp__meta">
+            <li><strong>SKU</strong> <span>{{ current_variant.sku | default: '—' }}</span></li>
+            <li><strong>Ships</strong> <span>Worldwide via DHL Express</span></li>
+            <li><strong>Returns</strong> <span>Free within 30 days</span></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    {%- assign related = product.collections | first -%}
+    {%- if related.products.size > 1 -%}
+      <div class="zw-pp__related">
+        <header class="zw-section__head">
+          <div>
+            <div class="zw-section__eyebrow">/ Pair with</div>
+            <h2 class="zw-section__title">More from <em>{{ related.title }}</em></h2>
+          </div>
+          <a href="{{ related.url }}" class="zw-section__link">View collection →</a>
+        </header>
+        <div class="zw-products__grid">
+          {%- for related_product in related.products limit: 4 -%}
+            {%- if related_product.id != product.id -%}
+              {% render 'zwiron-product-card', product: related_product %}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Zwiron Product",
+  "settings": [],
+  "presets": [{ "name": "Zwiron Product" }]
+}
+{% endschema %}

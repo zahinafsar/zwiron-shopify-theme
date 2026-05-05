@@ -1,0 +1,10 @@
+<script>
+  (function () {
+    try { history.replaceState(null, '', '/'); } catch (e) {}
+    sessionStorage.setItem('zwOpenCart', '1');
+    location.replace('/');
+  })();
+</script>
+<noscript>
+  <meta http-equiv="refresh" content="0; url=/">
+</noscript>

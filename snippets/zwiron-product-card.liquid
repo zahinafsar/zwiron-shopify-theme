@@ -1,0 +1,56 @@
+{% doc %}
+  Renders a Zwiron-styled product card. Used on home, collection grid, and recommendations.
+  @param {object} [product] - Shopify product object
+  @param {string} [fallback_image] - Optional fallback image URL when product has no image
+  @param {string} [fallback_name] - Optional fallback display name
+  @param {number} [fallback_price] - Optional fallback price (cents) for placeholder cards
+  @example
+  {% render 'zwiron-product-card', product: product %}
+{% enddoc %}
+
+{%- liquid
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+  assign tag_label = ''
+  if on_sale
+    assign tag_label = 'Sale'
+  elsif product.tags contains 'new'
+    assign tag_label = 'New'
+  elsif product.tags contains 'limited'
+    assign tag_label = 'Limited'
+  endif
+-%}
+
+<article class="zw-product">
+  <a href="{{ product.url | default: routes.collections_url }}" class="zw-product__media" aria-label="{{ product.title | default: fallback_name }}">
+    {%- if product.featured_image -%}
+      {{ product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', alt: product.title, widths: '320,480,640,800,1080' }}
+    {%- elsif fallback_image -%}
+      <img src="{{ fallback_image }}" alt="{{ fallback_name | default: product.title }}" loading="lazy">
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+    {%- if tag_label != '' -%}
+      <span class="zw-product__tag">{{ tag_label }}</span>
+    {%- endif -%}
+  </a>
+  <div class="zw-product__body">
+    <span class="zw-product__cat">{{ product.type | default: 'Edition 026' }}</span>
+    <a class="zw-product__name" href="{{ product.url | default: routes.collections_url }}">{{ product.title | default: fallback_name }}</a>
+    <div class="zw-product__price">
+      <span>
+        {%- if product -%}
+          {{ product.price | money }}
+          {%- if on_sale -%}
+            <small class="zw-product__compare">{{ product.compare_at_price | money }}</small>
+          {%- endif -%}
+        {%- else -%}
+          ${{ fallback_price | default: 195 }}
+        {%- endif -%}
+      </span>
+      <a class="zw-product__cta" href="{{ product.url | default: routes.collections_url }}" aria-label="View {{ product.title | default: fallback_name }}">→</a>
+    </div>
+  </div>
+</article>

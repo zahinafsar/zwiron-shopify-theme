@@ -1,0 +1,71 @@
+<div class="zw zw-cart" id="zwiron-cart" aria-hidden="true">
+  <div class="zw-cart__overlay" data-zw-cart-close></div>
+  <aside class="zw-cart__panel" role="dialog" aria-modal="true" aria-label="Shopping cart">
+    <header class="zw-cart__head">
+      <div>
+        <span class="zw-cart__eyebrow">/ Your bag</span>
+        <h2 class="zw-cart__title">Bag <em data-zw-cart-count>({{ cart.item_count }})</em></h2>
+      </div>
+      <button type="button" class="zw-cart__close" data-zw-cart-close aria-label="Close cart">
+        <span></span><span></span>
+      </button>
+    </header>
+
+    <div class="zw-cart__body" data-zw-cart-body>
+      {%- if cart.item_count > 0 -%}
+        <ul class="zw-cart__items">
+          {%- for item in cart.items -%}
+            <li class="zw-cart-line" data-zw-key="{{ item.key }}">
+              <a href="{{ item.url }}" class="zw-cart-line__media">
+                {%- if item.image -%}
+                  {{ item.image | image_url: width: 240 | image_tag: loading: 'lazy', alt: item.product.title }}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                {%- endif -%}
+              </a>
+              <div class="zw-cart-line__info">
+                <div class="zw-cart-line__top">
+                  <a href="{{ item.url }}" class="zw-cart-line__name">{{ item.product.title }}</a>
+                  <button type="button" class="zw-cart-line__remove" data-zw-cart-remove="{{ item.key }}" aria-label="Remove {{ item.product.title }}">×</button>
+                </div>
+                {%- unless item.product.has_only_default_variant -%}
+                  <span class="zw-cart-line__variant">{{ item.variant.title }}</span>
+                {%- endunless -%}
+                <div class="zw-cart-line__bottom">
+                  <div class="zw-cart-line__qty">
+                    <button type="button" data-zw-cart-qty="{{ item.key }}" data-dir="-1" aria-label="Decrease quantity">−</button>
+                    <span data-zw-cart-qty-value>{{ item.quantity }}</span>
+                    <button type="button" data-zw-cart-qty="{{ item.key }}" data-dir="1" aria-label="Increase quantity">+</button>
+                  </div>
+                  <span class="zw-cart-line__price">{{ item.final_line_price | money }}</span>
+                </div>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <div class="zw-cart__empty">
+          <p>Your bag is empty.</p>
+          <a href="{{ routes.collections_url }}" class="zw-btn zw-btn--ghost" data-zw-cart-close>Browse the drop →</a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if cart.item_count > 0 -%}
+      <footer class="zw-cart__foot">
+        <div class="zw-cart__row">
+          <span>Subtotal</span>
+          <strong data-zw-cart-subtotal>{{ cart.total_price | money }}</strong>
+        </div>
+        <p class="zw-cart__note">Shipping &amp; taxes calculated at checkout.</p>
+        <a href="{{ routes.cart_url }}/checkout" class="zw-btn zw-btn--primary zw-cart__checkout" data-zw-magnet>
+          Checkout <span class="zw-btn__arrow">→</span>
+        </a>
+      </footer>
+    {%- endif -%}
+  </aside>
+</div>
+
+{% schema %}
+{ "name": "Zwiron Cart Drawer", "settings": [] }
+{% endschema %}

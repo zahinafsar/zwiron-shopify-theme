@@ -1,0 +1,36 @@
+{%- liquid
+  assign nav_menu = linklists[section.settings.menu]
+-%}
+
+<nav class="zw zw-nav" aria-label="Primary">
+  <a href="{{ routes.root_url }}" class="zw-nav__logo">{{ section.settings.brand_name | default: 'zwiron' }}</a>
+  <ul class="zw-nav__links">
+    {%- if nav_menu.links.size > 0 -%}
+      {%- for link in nav_menu.links -%}
+        <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+      {%- endfor -%}
+    {%- else -%}
+      <li><a href="{{ routes.root_url }}">Home</a></li>
+      <li><a href="{{ routes.collections_url }}">Shop</a></li>
+      <li><a href="#zwiron-social">Social</a></li>
+      <li><a href="#zwiron-faq">FAQ</a></li>
+    {%- endif -%}
+  </ul>
+  <div style="display:flex; gap: 12px; align-items:center;">
+    <a href="{{ routes.search_url }}" class="zw-nav__cta" style="background: transparent; color: var(--zw-fg); border: 1px solid var(--zw-line);">Search</a>
+    <button type="button" class="zw-nav__cta" data-zw-magnet data-zw-cart-open>
+      Cart <span style="opacity:0.7;">[<span data-zw-cart-count>{{ cart.item_count }}</span>]</span>
+    </button>
+  </div>
+</nav>
+
+{% schema %}
+{
+  "name": "Zwiron Nav",
+  "settings": [
+    { "type": "text", "id": "brand_name", "label": "Brand name", "default": "zwiron" },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" }
+  ],
+  "presets": [{ "name": "Zwiron Nav" }]
+}
+{% endschema %}

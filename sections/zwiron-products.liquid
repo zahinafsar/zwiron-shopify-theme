@@ -1,0 +1,47 @@
+{%- liquid
+  assign collection = section.settings.collection
+  assign max = section.settings.max_products | default: 8
+  assign fallback_imgs = 'https://images.pexels.com/photos/15028227/pexels-photo-15028227.jpeg?auto=compress&cs=tinysrgb&h=650&w=940|https://images.pexels.com/photos/28481966/pexels-photo-28481966.jpeg?auto=compress&cs=tinysrgb&h=650&w=940|https://images.pexels.com/photos/11515541/pexels-photo-11515541.jpeg?auto=compress&cs=tinysrgb&h=650&w=940|https://images.pexels.com/photos/19644204/pexels-photo-19644204.jpeg?auto=compress&cs=tinysrgb&h=650&w=940|https://images.pexels.com/photos/30181058/pexels-photo-30181058.jpeg?auto=compress&cs=tinysrgb&h=650&w=940|https://images.pexels.com/photos/30077330/pexels-photo-30077330.jpeg?auto=compress&cs=tinysrgb&h=650&w=940|https://images.pexels.com/photos/35930230/pexels-photo-35930230.jpeg?auto=compress&cs=tinysrgb&h=650&w=940|https://images.pexels.com/photos/14656279/pexels-photo-14656279.jpeg?auto=compress&cs=tinysrgb&h=650&w=940' | split: '|'
+  assign fallback_names = 'Lumen Trench|Volta Knit|Aero Cargo|Strata Boot|Helix Coat|Onyx Tee|Veil Wrap|Pulse Trouser' | split: '|'
+-%}
+
+<section class="zw zw-section zw-products" id="zwiron-products">
+  <div class="zw-container">
+    <header class="zw-section__head">
+      <div>
+        <div class="zw-section__eyebrow">{{ section.settings.eyebrow | default: '/ 02 — In stock now' }}</div>
+        <h2 class="zw-section__title">{{ section.settings.title_1 | default: 'Featured' }} <em>{{ section.settings.title_2 | default: 'pieces.' }}</em></h2>
+      </div>
+      <a href="{{ section.settings.link_url | default: routes.collections_url }}" class="zw-section__link">{{ section.settings.link_label | default: 'View all →' }}</a>
+    </header>
+
+    <div class="zw-products__grid">
+      {%- if collection.products.size > 0 -%}
+        {%- for product in collection.products limit: max -%}
+          {%- assign idx = forloop.index0 | modulo: 8 -%}
+          {% render 'zwiron-product-card', product: product, fallback_image: fallback_imgs[idx], fallback_name: product.title %}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (0..7) -%}
+          {% render 'zwiron-product-card', fallback_image: fallback_imgs[i], fallback_name: fallback_names[i] %}
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Zwiron Products",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "/ 02 — In stock now" },
+    { "type": "text", "id": "title_1", "label": "Title", "default": "Featured" },
+    { "type": "text", "id": "title_2", "label": "Title (italic)", "default": "pieces." },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "max_products", "label": "Max products", "min": 4, "max": 12, "step": 1, "default": 8 },
+    { "type": "url", "id": "link_url", "label": "View-all link" },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "View all →" }
+  ],
+  "presets": [{ "name": "Zwiron Products" }]
+}
+{% endschema %}
