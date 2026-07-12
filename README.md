@@ -4,7 +4,7 @@ A modern, editorial Shopify theme built on top of Shopify's **Horizon** with a c
 
 ![Zwiron preview](docs/preview.png)
 
-**Live demo →** [zwiron.myshopify.com](https://zwiron.myshopify.com/)
+**Live demo →** [zwiron-5gv8uszp.myshopify.com](https://zwiron-5gv8uszp.myshopify.com/)
 Password: `zahinafsar`
 
 ---
